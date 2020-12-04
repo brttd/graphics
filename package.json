@@ -1,0 +1,24 @@
+{
+    "name": "graphics",
+    "version": "1.0.0",
+    "description": "",
+    "scripts": {
+        "build": "gulp",
+        "watch": "gulp watch",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "keywords": [],
+    "author": "Brett Doyle",
+    "license": "ISC",
+    "devDependencies": {
+        "gulp": "^4.0.2",
+        "gulp-file-include": "^2.2.2",
+        "gulp-rename": "^2.0.0",
+        "gulp-uglify": "^3.0.2",
+        "gulp-util": "^3.0.8",
+        "nunjucks": "^3.2.2",
+        "through2": "^4.0.2",
+        "vinyl": "^2.2.1",
+        "gulp-htmlmin": "^5.0.1"
+    }
+}
