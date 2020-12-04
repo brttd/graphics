@@ -3,6 +3,7 @@ const uglify = require("gulp-uglify");
 const rename = require("gulp-rename");
 const fileinclude = require("gulp-file-include");
 const htmlmin = require("gulp-htmlmin");
+const webserver = require("gulp-webserver");
 
 const njcks = require("./gulp-nunjucks");
 
@@ -46,9 +47,19 @@ function static() {
     return src("static/**/*").pipe(dest("dist/"));
 }
 
-exports.default = parallel(static, canvas);
+exports.default = exports.build = parallel(static, canvas);
 
 exports.watch = function () {
-    watch("static/**/*", { ignoreInitial: false }, static);
-    watch("src/**/*.js", { ignoreInitial: false }, canvas);
+    watch("static/**/*", static);
+    watch("src/**/*.js", canvas);
 };
+
+exports.serve = function () {
+    src("dist").pipe(
+        webserver({
+            livereload: true,
+        })
+    );
+};
+
+exports.dev = series(exports.build, parallel(exports.serve, exports.watch));
