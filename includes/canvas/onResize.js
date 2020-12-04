@@ -18,6 +18,7 @@ function onResize() {
 }
 
 @@if (this.pixelScale !== undefined && this.pixelScale !== false) {
+    canvas.style.imageRendering = 'crisp-edges';
     canvas.style.imageRendering = 'pixelated';
     document.body.style.overflow = 'hidden';
 }
