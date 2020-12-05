@@ -47,9 +47,9 @@ function afterResize() {
 function render() {
     for (x = 0; x < width; x++) {
         for (y = 0; y < height; y++) {
-            scores[0] = 0;
-            scores[1] = 0;
-            scores[2] = 0;
+            scores[0] = 255;
+            scores[1] = 255;
+            scores[2] = 255;
 
             //console.log(x, y, 0);
 
@@ -80,7 +80,7 @@ function render() {
             }
 
             //for (o = 0; o < offsetCount; o += 2) {
-            o = ~~(Math.random() * offsetCount);
+            o = ~~(Math.random() * (offsetCount / 2)) * 2;
 
             n =
                 (((x + offsets[o] + width) % width) +
@@ -90,13 +90,22 @@ function render() {
             if (
                 image_data_old.data[n + ((t + 1) % 3)] >=
                     image_data_old.data[i + ((t + 0) % 3)] &&
-                image_data_old.data[n + ((t + 1) % 3)] > scores[(t + 1) % 3]
+                image_data_old.data[n + ((t + 0) % 3)] < scores[(t + 0) % 3]
+                /*&&
+                (image_data_old.data[n + ((t + 0) % 3)] > scores[(t + 0) % 3] ||
+                    image_data_old.data[n + ((t + 1) % 3)] >
+                        scores[(t + 1) % 3] ||
+                    image_data_old.data[n + ((t + 2) % 3)] >
+                        scores[(t + 2) % 3])
+                    */
             ) {
                 scores[0] = image_data_old.data[n + 0];
                 scores[1] = image_data_old.data[n + 1];
                 scores[2] = image_data_old.data[n + 2];
 
                 f = 1;
+
+                //break;
             }
             //}
 
