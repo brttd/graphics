@@ -1,6 +1,6 @@
 @@include("canvas/common.js");
 
-var pixel_scale = 5;
+@@include("canvas/pixel_scale.js", { pixel_scale: 5 });
 
 var grid_old = [];
 var grid_new = [];
@@ -47,7 +47,7 @@ function afterResize() {
     }
 }
 
-@@include("canvas/onResize.js", { afterResize: true, pixelScale: true });
+@@include("canvas/onResize.js", { afterResize: true, pixel_scale: true });
 
 function render() {
     //Swap the two grids

@@ -1,5 +1,5 @@
 function onResize() {
-    @@if (this.pixelScale !== undefined && this.pixelScale !== false) {
+    @@if (this.pixel_scale !== undefined && this.pixel_scale !== false) {
         width = canvas.width = ~~(window.innerWidth / pixel_scale + 1);
         height = canvas.height = ~~(window.innerHeight / pixel_scale + 1);
 
@@ -10,7 +10,7 @@ function onResize() {
         canvas.style.top = ((window.innerHeight - (height * pixel_scale)) / 2) + 'px';
     }
 
-    @@if (this.pixelScale === undefined || this.pixelScale == false) {
+    @@if (this.pixel_scale === undefined || this.pixel_scale == false) {
         width = canvas.width = window.innerWidth;
         height = canvas.height = window.innerHeight;
     }
@@ -20,7 +20,7 @@ function onResize() {
     }
 }
 
-@@if (this.pixelScale !== undefined && this.pixelScale !== false) {
+@@if (this.pixel_scale !== undefined && this.pixel_scale !== false) {
     canvas.style.imageRendering = 'crisp-edges';
     canvas.style.imageRendering = 'pixelated';
     canvas.style.position = 'relative';

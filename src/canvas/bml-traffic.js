@@ -1,6 +1,6 @@
 @@include("canvas/common.js");
 
-var pixel_scale = 4;
+@@include("canvas/pixel_scale.js", { pixel_scale: 4 });
 
 var pixel_count, top_row;
 
@@ -37,7 +37,7 @@ function afterResize() {
     }
 }
 
-@@include("canvas/onResize.js", { afterResize: true, pixelScale: true });
+@@include("canvas/onResize.js", { afterResize: true, pixel_scale: true });
 
 function render() {
     var i;
