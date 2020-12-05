@@ -8,7 +8,7 @@ const webserver = require("gulp-webserver");
 const njcks = require("./gulp-nunjucks");
 
 function renamePath(path, file) {
-    if (!path.basename !== "index") {
+    if (path.basename !== "index") {
         path.dirname += "/" + path.basename;
         path.basename = "index";
     }
