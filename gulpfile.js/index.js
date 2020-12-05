@@ -7,10 +7,21 @@ const webserver = require("gulp-webserver");
 
 const njcks = require("./gulp-nunjucks");
 
-function renamePath(path) {
+function renamePath(path, file) {
     if (!path.basename !== "index") {
         path.dirname += "/" + path.basename;
         path.basename = "index";
+    }
+
+    file.originalBasename = path.basename;
+}
+
+function renamePathSource(path, file) {
+    path.basename = "source";
+}
+function renamePathRemoveSource(path, file) {
+    if (file.originalBasename) {
+        path.basename = file.originalBasename;
     }
 }
 
@@ -22,24 +33,23 @@ function canvas() {
             })
         )
         .pipe(
-            uglify({
-                toplevel: true,
-            })
-        )
-        .pipe(
             njcks({
                 path: "layouts",
                 template: "canvas.njk",
             })
         )
+        .pipe(rename(renamePath))
+        .pipe(rename(renamePathSource))
+        .pipe(dest("dist/"))
+        .pipe(rename(renamePathRemoveSource))
         .pipe(
             htmlmin({
                 collapseWhitespace: true,
                 minifyCSS: true,
                 removeComments: true,
+                minifyJS: { toplevel: true },
             })
         )
-        .pipe(rename(renamePath))
         .pipe(dest("dist/"));
 }
 
