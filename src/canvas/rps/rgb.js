@@ -32,7 +32,7 @@ function afterResize() {
         x = Math.random();
         y = Math.random();
         z = Math.random();
-        n = 0.9 + (x + y + z) / 0.1;
+        n = 0.9 + (x + y + z) * 0.1;
 
         image_data_new.data[i * 4 + 0] = ~~(255 * x / n);
         image_data_new.data[i * 4 + 1] = ~~(255 * y / n);
