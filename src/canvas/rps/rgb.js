@@ -6,6 +6,7 @@ var image_data_old;
 var image_data_new;
 
 var scores = [0, 0, 0];
+var boost = [0, 0, 0];
 
 var offsets = [-1, -1, -1, 0, -1, 1, 0, 1, 1, 1, 1, 0, 1, -1, 0, -1];
 //offsets = [-1, 0, 1, 0, 0, -1, 0, 1];
@@ -32,7 +33,7 @@ function afterResize() {
         x = Math.random();
         y = Math.random();
         z = Math.random();
-        n = 0.9 + (x + y + z) * 0.1;
+        n = 0.95 + (x + y + z) * 0.05;
 
         image_data_new.data[i * 4 + 0] = ~~(255 * x / n);
         image_data_new.data[i * 4 + 1] = ~~(255 * y / n);
@@ -56,6 +57,9 @@ function render() {
             scores[0] = 255;
             scores[1] = 255;
             scores[2] = 255;
+            boost[0] = Math.random() * 8;
+            boost[1] = Math.random() * 8;
+            boost[2] = Math.random() * 8;
 
             //console.log(x, y, 0);
 
@@ -94,16 +98,9 @@ function render() {
                 4;
 
             if (
-                image_data_old.data[n + ((t + 1) % 3)] >=
-                    image_data_old.data[i + ((t + 0) % 3)] &&
+                image_data_old.data[n + ((t + 1) % 3)] + boost[(t + 1) % 3] >=
+                    image_data_old.data[i + ((t + 0) % 3)] + boost[t] &&
                 image_data_old.data[n + ((t + 0) % 3)] < scores[(t + 0) % 3]
-                /*&&
-                (image_data_old.data[n + ((t + 0) % 3)] > scores[(t + 0) % 3] ||
-                    image_data_old.data[n + ((t + 1) % 3)] >
-                        scores[(t + 1) % 3] ||
-                    image_data_old.data[n + ((t + 2) % 3)] >
-                        scores[(t + 2) % 3])
-                    */
             ) {
                 scores[0] = image_data_old.data[n + 0];
                 scores[1] = image_data_old.data[n + 1];
