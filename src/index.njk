@@ -1,0 +1,79 @@
+{% extends "base.njk" %}
+
+{% block head %}
+<title>Index</title>
+
+<style>
+body, html {
+    margin: 0;
+    padding: 0;
+
+    background-color: #FFF1E6;
+}
+
+.graphic-list {
+    max-width: 150vh;
+
+    margin: 0 auto;
+    padding: 1em;
+
+    text-align: center;
+}
+
+.graphic {
+    display: inline-block;
+
+    margin: 1em;
+
+    text-align: left;
+}
+
+.graphic iframe {
+    display: block;
+
+    min-width: 300px;
+    min-height: 200px;
+
+    width: 22vw;
+    height: 22vh;
+
+    max-width: 900px;
+    max-height: 600px;
+
+
+    border: none;
+    outline: none;
+}
+
+.graphic .title {
+    margin: 0;
+    margin-bottom: 0.5em;
+
+    text-decoration: none;
+}
+a {
+    display: inline-block;
+
+    padding: 0.05em 0.2em;
+    margin: -0.05em -0.2em;
+
+    color: #676751;
+    text-decoration: none;
+}
+a:hover {
+    background-color: #676751;
+    color: #FFF1E6;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="graphic-list">
+{% for url in pages %}
+<div class="graphic">
+<h3 class="title"><a href="{{ url }}">{{ url }}</a></h3>
+<iframe src="{{ url }}"></iframe>
+</div>
+{% endfor %}
+</div>
+{% endblock %}
