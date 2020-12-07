@@ -6,27 +6,36 @@ const htmlmin = require("gulp-htmlmin");
 const webserver = require("gulp-webserver");
 
 const njcks = require("./gulp-nunjucks");
+const data = require("./gulp-datastore");
 
-function renamePath(path, file) {
+const globs = {
+    static: "static/**/*",
+    canvas: "src/**/*.js",
+    html: ["src/**/*.njk", "src/**/*.html"],
+};
+
+function indexPath(path, file) {
     if (path.basename !== "index") {
         path.dirname += "/" + path.basename;
         path.basename = "index";
     }
 
+    file.url = path.dirname.replace("\\", "/");
+
     file.originalBasename = path.basename;
 }
 
-function renamePathSource(path, file) {
+function addPathSource(path, file) {
     path.basename = "source";
 }
-function renamePathRemoveSource(path, file) {
+function removePathSource(path, file) {
     if (file.originalBasename) {
         path.basename = file.originalBasename;
     }
 }
 
 function canvas() {
-    return src("src/**/*.js")
+    return src(globs.canvas)
         .pipe(
             fileinclude({
                 basepath: "includes/",
@@ -38,10 +47,42 @@ function canvas() {
                 template: "canvas.njk",
             })
         )
-        .pipe(rename(renamePath))
-        .pipe(rename(renamePathSource))
+        .pipe(rename(indexPath))
+        .pipe(
+            data.read((file, store, cb) => {
+                store.remove("pages", file.url);
+                store.push("pages", file.url);
+
+                cb();
+            })
+        )
+        .pipe(rename(addPathSource))
         .pipe(dest("dist/"))
-        .pipe(rename(renamePathRemoveSource))
+        .pipe(rename(removePathSource))
+        .pipe(
+            htmlmin({
+                collapseWhitespace: true,
+                minifyCSS: true,
+                removeComments: true,
+                minifyJS: { toplevel: true },
+            })
+        )
+        .pipe(dest("dist/"));
+}
+
+function html() {
+    return src(globs.html)
+        .pipe(
+            fileinclude({
+                basepath: "includes/",
+            })
+        )
+        .pipe(data.write())
+        .pipe(
+            njcks.render({
+                path: "layouts",
+            })
+        )
         .pipe(
             htmlmin({
                 collapseWhitespace: true,
@@ -54,14 +95,17 @@ function canvas() {
 }
 
 function static() {
-    return src("static/**/*").pipe(dest("dist/"));
+    return src(globs.static).pipe(dest("dist/"));
 }
 
-exports.default = exports.build = parallel(static, canvas);
+const build = series(parallel(static, canvas), html);
+
+exports.default = exports.build = build;
 
 exports.watch = function () {
-    watch("static/**/*", static);
-    watch("src/**/*.js", canvas);
+    watch(globs.static, static);
+    watch(globs.canvas, canvas);
+    watch(globs.html, html);
 };
 
 exports.serve = function () {
@@ -72,4 +116,4 @@ exports.serve = function () {
     );
 };
 
-exports.dev = series(exports.build, parallel(exports.serve, exports.watch));
+exports.dev = series(build, parallel(exports.serve, exports.watch));
