@@ -32,15 +32,17 @@ function afterResize() {
         x = Math.random();
         y = Math.random();
         z = Math.random();
-        image_data_new.data[i * 4 + 0] = ~~(255 * x / (x + y + z));
-        image_data_new.data[i * 4 + 1] = ~~(255 * y / (x + y + z));
-        image_data_new.data[i * 4 + 2] = ~~(255 * z / (x + y + z));
+        n = 0.5 + (x + y + z) * 0.5;
+
+        image_data_new.data[i * 4 + 0] = ~~(255 * x / n);
+        image_data_new.data[i * 4 + 1] = ~~(255 * y / n);
+        image_data_new.data[i * 4 + 2] = ~~(255 * z / n);
 
         image_data_new.data[i * 4 + 3] = 255;
 
-        image_data_old.data[i * 4 + 0] = ~~(255 * x / (x + y + z));
-        image_data_old.data[i * 4 + 1] = ~~(255 * y / (x + y + z));
-        image_data_old.data[i * 4 + 2] = ~~(255 * z / (x + y + z));
+        image_data_old.data[i * 4 + 0] = ~~(255 * x / n);
+        image_data_old.data[i * 4 + 1] = ~~(255 * y / n);
+        image_data_old.data[i * 4 + 2] = ~~(255 * z / n);
 
         image_data_old.data[i * 4 + 3] = 255;
     }
