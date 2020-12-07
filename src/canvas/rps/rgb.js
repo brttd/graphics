@@ -16,6 +16,7 @@ var i = 0;
 var n = 0;
 var x = 0;
 var y = 0;
+var z = 0
 
 var t = 0;
 
@@ -28,15 +29,18 @@ function afterResize() {
     image_data_old = ctx.getImageData(0, 0, width, height);
 
     for (i = 0; i < width * height; i++) {
-        image_data_new.data[i * 4 + 0] = ~~(Math.random() * 255);
-        image_data_new.data[i * 4 + 1] = ~~(Math.random() * 255);
-        image_data_new.data[i * 4 + 2] = ~~(Math.random() * 255);
+        x = Math.random();
+        y = Math.random();
+        z = Math.random();
+        image_data_new.data[i * 4 + 0] = ~~(255 * x / (x + y + z));
+        image_data_new.data[i * 4 + 1] = ~~(255 * y / (x + y + z));
+        image_data_new.data[i * 4 + 2] = ~~(255 * z / (x + y + z));
 
         image_data_new.data[i * 4 + 3] = 255;
 
-        image_data_old.data[i * 4 + 0] = ~~(Math.random() * 255);
-        image_data_old.data[i * 4 + 1] = ~~(Math.random() * 255);
-        image_data_old.data[i * 4 + 2] = ~~(Math.random() * 255);
+        image_data_old.data[i * 4 + 0] = ~~(255 * x / (x + y + z));
+        image_data_old.data[i * 4 + 1] = ~~(255 * y / (x + y + z));
+        image_data_old.data[i * 4 + 2] = ~~(255 * z / (x + y + z));
 
         image_data_old.data[i * 4 + 3] = 255;
     }
