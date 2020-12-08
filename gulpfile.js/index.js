@@ -10,8 +10,10 @@ const data = require("./gulp-datastore");
 
 const globs = {
     static: "static/**/*",
-    canvas: "src/**/*.js",
     html: ["src/**/*.njk", "src/**/*.html"],
+
+    canvas: "src/**/*.js",
+    glsl: "src/**/*.frag",
 };
 
 function indexPath(path, file) {
@@ -70,6 +72,42 @@ function canvas() {
         .pipe(dest("dist/"));
 }
 
+function glsl() {
+    return src(globs.glsl)
+        .pipe(
+            fileinclude({
+                basepath: "includes/",
+            })
+        )
+        .pipe(
+            njcks({
+                path: "layouts",
+                template: "glsl.njk",
+            })
+        )
+        .pipe(rename(indexPath))
+        .pipe(
+            data.read((file, store, cb) => {
+                store.remove("pages", file.url);
+                store.push("pages", file.url);
+
+                cb();
+            })
+        )
+        .pipe(rename(addPathSource))
+        .pipe(dest("dist/"))
+        .pipe(rename(removePathSource))
+        .pipe(
+            htmlmin({
+                collapseWhitespace: true,
+                minifyCSS: true,
+                removeComments: true,
+                minifyJS: { toplevel: true },
+            })
+        )
+        .pipe(dest("dist/"));
+}
+
 function html() {
     return src(globs.html)
         .pipe(
@@ -98,13 +136,14 @@ function static() {
     return src(globs.static).pipe(dest("dist/"));
 }
 
-const build = series(parallel(static, canvas), html);
+const build = series(parallel(static, canvas, glsl), html);
 
 exports.default = exports.build = build;
 
 exports.watch = function () {
     watch(globs.static, static);
     watch(globs.canvas, canvas);
+    watch(globs.glsl, glsl);
     watch(globs.html, html);
 };
 

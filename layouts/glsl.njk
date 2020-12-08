@@ -1,0 +1,26 @@
+{% extends "base.njk" %}
+
+{% block head %}
+<style>
+body, html {
+    margin: 0;
+    padding: 0;
+}
+
+canvas {
+    display: block;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<canvas id="canvas"></canvas>
+
+<script src="/js/glslcanvas.js"></script>
+
+<script>
+new GlslCanvas(canvas, {
+    fragmentString: `{{ content | safe }}`
+});
+</script>
+{% endblock %}
