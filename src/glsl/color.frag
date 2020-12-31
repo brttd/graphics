@@ -33,7 +33,7 @@ vec3 ScreenSpaceDither( vec2 vScreenPos )
 }
 
 void main() {
-    float t = u_time * 1.0 - 10.0;
+    float t = u_time * 1.0 + 130.0;
 
     vec2 pos = gl_FragCoord.xy / min(u_resolution.x * 3.5, u_resolution.y * 3.5);
 
