@@ -36,6 +36,8 @@ var offsetCount = offsets.length;
 
 var score = 0;
 
+var dead = 0;
+
 var image_data;
 
 var i = 0;
@@ -66,6 +68,8 @@ function render() {
     grid_new = grid_old;
     grid_old = grid_tmp;
 
+    dead = 0;
+
     for (x = 0; x < width; x++) {
         for (y = 0; y < height; y++) {
             score = 0;
@@ -92,6 +96,14 @@ function render() {
             image_data.data[i * 4] = colors[o][0];
             image_data.data[i * 4 + 1] = colors[o][1];
             image_data.data[i * 4 + 2] = colors[o][2];
+
+            dead += grid_new[i] === 0 ? 1 : 0;
+        }
+    }
+
+    if (dead >= grid_new.length * 0.9) {
+        for (o = 0; o < grid_new.length * 0.02; o++) {
+            grid_new[~~(Math.random() * grid_new.length)] = 1.0;
         }
     }
 
