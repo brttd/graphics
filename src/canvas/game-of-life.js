@@ -102,14 +102,14 @@ function render() {
             ~~grid_old[~~(i / width) * width + ((i + 1) % width)] +
             //⭨ South-East neighbour
             ~~grid_old[
-                ((~~((i + width) / width) * width + cellCount) % cellCount) +
+                ((~~((i + width) / width) * width) % cellCount) +
                     ((i + 1) % width)
             ] +
             //⭣ South neighbour
             ~~grid_old[(i + width) % cellCount] +
             //⭩ South-West neighbour
             ~~grid_old[
-                ((~~((i + width) / width) * width + cellCount) % cellCount) +
+                ((~~((i + width) / width) * width) % cellCount) +
                     ((i - 1 + width) % width)
             ] +
             //⭠ West neighbour
@@ -131,9 +131,43 @@ function render() {
         dead += grid_new[i] === 0 || grid_new[i] === 1.99 ? 1 : 0;
     }
 
-    if (dead >= grid_new.length * 0.9) {
-        for (o = 0; o < grid_new.length * 0.01; o++) {
-            grid_new[~~(Math.random() * grid_new.length)] = 1.0;
+    if (dead >= grid_new.length * 0.85) {
+        for (o = 0; o < grid_new.length * 0.002; o++) {
+            i = ~~(Math.random() * grid_new.length);
+
+            score =
+                //⭦ North-West neighbour
+                ~~grid_old[
+                    ~~(((i - width + cellCount) % cellCount) / width) * width +
+                        ((i - 1 + width) % width)
+                ] +
+                //⭡ North neighbour
+                ~~grid_old[(i - width + cellCount) % cellCount] +
+                //⭧ North-East neighbour
+                ~~grid_old[
+                    ~~(((i - width + cellCount) % cellCount) / width) * width +
+                        ((i + 1) % width)
+                ] +
+                //⭢ East neighbour
+                ~~grid_old[~~(i / width) * width + ((i + 1) % width)] +
+                //⭨ South-East neighbour
+                ~~grid_old[
+                    ((~~((i + width) / width) * width) % cellCount) +
+                        ((i + 1) % width)
+                ] +
+                //⭣ South neighbour
+                ~~grid_old[(i + width) % cellCount] +
+                //⭩ South-West neighbour
+                ~~grid_old[
+                    ((~~((i + width) / width) * width) % cellCount) +
+                        ((i - 1 + width) % width)
+                ] +
+                //⭠ West neighbour
+                ~~grid_old[~~(i / width) * width + ((i - 1 + width) % width)];
+
+            if (score >= 2) {
+                grid_new[i] = Math.max(grid_new[i], 1.0);
+            }
         }
     }
 
