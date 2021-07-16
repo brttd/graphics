@@ -16,15 +16,15 @@ var videoUrls = [
     '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/BigBuckBunny.mp4',
     '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/ElephantsDream.mp4',
     '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/Sintel.mp4',
-    '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
     '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/TearsOfSteel.mp4',
-    '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
-    '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
-    '//commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4'
+    //'//commondatastorage.googleapis.com/gtv-videos-bucket/sample/SubaruOutbackOnStreetAndDirt.mp4',
+    //'//commondatastorage.googleapis.com/gtv-videos-bucket/sample/VolkswagenGTIReview.mp4',
+    //'//commondatastorage.googleapis.com/gtv-videos-bucket/sample/WeAreGoingOnBullrun.mp4',
+    //'//commondatastorage.googleapis.com/gtv-videos-bucket/sample/WhatCarCanYouGetForAGrand.mp4'
 ];
 
 video.controls = true;
-video.src =  videoUrls[Math.round((videoUrls.length - 1) * Math.random())];
+video.src =  videoUrls[Math.floor(videoUrls.length * Math.random())];
 video.volume = 0;
 
 var imageData = null;
@@ -40,6 +40,7 @@ var videoHeight = 0;
 var scale = 1;
 
 var i = 0;
+var j = 0;
 
 var sourceX = 0;
 var sourceY = 0;
@@ -84,14 +85,14 @@ function afterResize() {
     sourceX = Math.round(videoWidth * 0.5 - sourceW * 0.5);
     sourceY = Math.round(videoHeight * 0.5 - sourceH * 0.5);
 
-    coordMultiplier = Math.round(width / 127);
+    coordMultiplier = Math.round(width / 32);
 
     //coordMultiplier = 5;
 }
 
 function render() {
-    painterCtx.fillStyle = 'black';
-    painterCtx.fillRect(0, 0, width, height);
+    //painterCtx.fillStyle = 'black';
+    //painterCtx.fillRect(0, 0, width, height);
 
     painterCtx.drawImage(
         video,
@@ -103,19 +104,24 @@ function render() {
     imageDataPaint = ctx.createImageData(width, height);
 
     for (i = 0; i < imageDataPaint.data.length; i += 4) {
-        imageDataPaint.data[i] = ((imageData.data[i] % prevImageData.data[i]) + 256) % 256;
-        imageDataPaint.data[i + 1] = ((imageData.data[i + 1] % prevImageData.data[i + 1]) + 256) % 256;
-        imageDataPaint.data[i + 2] = ((imageData.data[i + 2] % prevImageData.data[i + 2]) + 256) % 256;
+        /*
+        imageDataPaint.data[i + 0] = ((imageData.data[i + 0] + prevImageData.data[i + 0]) + 256) % 256;
+        imageDataPaint.data[i + 1] = ((imageData.data[i + 1] + prevImageData.data[i + 1]) + 256) % 256;
+        imageDataPaint.data[i + 2] = ((imageData.data[i + 2] + prevImageData.data[i + 2]) + 256) % 256;
         
-        imageDataPaint.data[i] = (imageDataPaint.data[i] * .4 + prevImageDataPaint.data[i] * 0.7) % 256;
-        imageDataPaint.data[i + 1] = (imageDataPaint.data[i + 1] * .4 + prevImageDataPaint.data[i + 1] * 0.7) % 6;
+        imageDataPaint.data[i + 0] = (imageDataPaint.data[i + 0] * .4 + prevImageDataPaint.data[i + 0] * 0.7) % 256;
+        imageDataPaint.data[i + 1] = (imageDataPaint.data[i + 1] * .4 + prevImageDataPaint.data[i + 1] * 0.7) % 256;
         imageDataPaint.data[i + 2] = (imageDataPaint.data[i + 2] * .4 + prevImageDataPaint.data[i + 2] * 0.7) % 256;
         imageDataPaint.data[i + 3] = 255;
+
+        */
+
+        j = Math.round(Math.max(imageData.data[i + 0], imageData.data[i + 1], imageData.data[i + 2]) / 10) * 16;
         
-        //imageDataPaint.data[i] = imageData.data[(i + (prevImageDataPaint.data[i + 0] - 128) * coordMultiplier) % //imageDataPaint.data.length];
-        //imageDataPaint.data[i + 1] = imageData.data[(i + 1 + (prevImageDataPaint.data[i + 0] - 128) * //coordMultiplier) % imageDataPaint.data.length];
-        //imageDataPaint.data[i + 2] = imageData.data[(i + 2 + (prevImageDataPaint.data[i + 0] - 128) * //coordMultiplier) % imageDataPaint.data.length];
-        //imageDataPaint.data[i + 3] = 255;
+        imageDataPaint.data[i + 0] = imageData.data[(i + 0 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
+        imageDataPaint.data[i + 1] = imageData.data[(i + 1 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
+        imageDataPaint.data[i + 2] = imageData.data[(i + 2 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
+        imageDataPaint.data[i + 3] = 255;
     }
 
     ctx.fillStyle = 'black';
