@@ -6,6 +6,8 @@ video.loop = true;
 var painterCanvas = document.createElement('canvas');
 var painterCtx = painterCanvas.getContext('2d');
 
+var videoScale = 1.1;
+
 @@include("canvas/common.js");
 @@include("canvas/pixel_scale.js", { pixel_scale: 2 });
 @@include("canvas/onResize.js", { afterResize: true, pixel_scale: true });
@@ -41,6 +43,10 @@ var scale = 1;
 
 var i = 0;
 var j = 0;
+
+var t = 0;
+var t1 = 0;
+var t2 = 0;
 
 var sourceX = 0;
 var sourceY = 0;
@@ -79,6 +85,8 @@ function afterResize() {
         scale = width / videoWidth;
     }
 
+    scale *= videoScale;
+
     sourceW = width / scale;
     sourceH = height / scale;
 
@@ -103,25 +111,62 @@ function render() {
     imageData = painterCtx.getImageData(0, 0, width, height);
     imageDataPaint = ctx.createImageData(width, height);
 
+    t1 = 0;
+
     for (i = 0; i < imageDataPaint.data.length; i += 4) {
-        /*
-        imageDataPaint.data[i + 0] = ((imageData.data[i + 0] + prevImageData.data[i + 0]) + 256) % 256;
-        imageDataPaint.data[i + 1] = ((imageData.data[i + 1] + prevImageData.data[i + 1]) + 256) % 256;
-        imageDataPaint.data[i + 2] = ((imageData.data[i + 2] + prevImageData.data[i + 2]) + 256) % 256;
+        j = Math.max(imageData.data[i + 0], imageData.data[i + 1], imageData.data[i + 2]) * 0.85 +
+            Math.min(prevImageDataPaint.data[i + 0], prevImageDataPaint.data[i + 1], prevImageDataPaint.data[i + 2]) * 0.15;
         
-        imageDataPaint.data[i + 0] = (imageDataPaint.data[i + 0] * .4 + prevImageDataPaint.data[i + 0] * 0.7) % 256;
-        imageDataPaint.data[i + 1] = (imageDataPaint.data[i + 1] * .4 + prevImageDataPaint.data[i + 1] * 0.7) % 256;
-        imageDataPaint.data[i + 2] = (imageDataPaint.data[i + 2] * .4 + prevImageDataPaint.data[i + 2] * 0.7) % 256;
+        t1 += ~~(Math.min(prevImageData.data[i + 0], prevImageData.data[i + 1], prevImageData.data[i + 2]) / 192);
+
         imageDataPaint.data[i + 3] = 255;
 
-        */
-
-        j = Math.round(Math.max(imageData.data[i + 0], imageData.data[i + 1], imageData.data[i + 2]) / 10) * 16;
-        
-        imageDataPaint.data[i + 0] = imageData.data[(i + 0 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
-        imageDataPaint.data[i + 1] = imageData.data[(i + 1 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
-        imageDataPaint.data[i + 2] = imageData.data[(i + 2 + (j - 128) * coordMultiplier) % imageDataPaint.data.length];
-        imageDataPaint.data[i + 3] = 255;
+        if (j < 51) {
+            //Scanline Datamosh
+            imageDataPaint.data[i + 0] = imageData.data[(i + 0 + t1 * 4) % imageData.data.length];
+            imageDataPaint.data[i + 1] = imageData.data[(i + 1 + t1 * 4) % imageData.data.length];
+            imageDataPaint.data[i + 2] = imageData.data[(i + 2 + t1 * 4) % imageData.data.length];
+        } else if (j < 104) {
+            //Color accumulate & wrap
+            imageDataPaint.data[i + 0] = ((imageData.data[i + 0] + prevImageData.data[i + 0]) + 256) % 256;
+            imageDataPaint.data[i + 1] = ((imageData.data[i + 1] + prevImageData.data[i + 1]) + 256) % 256;
+            imageDataPaint.data[i + 2] = ((imageData.data[i + 2] + prevImageData.data[i + 2]) + 256) % 256;
+            
+            imageDataPaint.data[i + 0] = (imageDataPaint.data[i + 0] * .4 + prevImageDataPaint.data[i + 0] * 0.7) % 256;
+            imageDataPaint.data[i + 1] = (imageDataPaint.data[i + 1] * .4 + prevImageDataPaint.data[i + 1] * 0.7) % 256;
+            imageDataPaint.data[i + 2] = (imageDataPaint.data[i + 2] * .4 + prevImageDataPaint.data[i + 2] * 0.7) % 256;
+            
+        } else if (j < 153) {
+            //Pixel Shift - horizontal duplicate / glass emboss
+            t = Math.round(Math.min(imageData.data[i + 0], imageData.data[i + 1], imageData.data[i + 2]) / 10) * 16;
+            
+            imageDataPaint.data[i + 0] = imageData.data[(i + 0 + (t - 128) * 20) % imageDataPaint.data.length];
+            imageDataPaint.data[i + 1] = imageData.data[(i + 1 + (t - 128) * 20) % imageDataPaint.data.length];
+            imageDataPaint.data[i + 2] = imageData.data[(i + 2 + (t - 128) * 20) % imageDataPaint.data.length];
+        } else if (j < 204) {
+            /*
+            //Pixel Shift - horizontal duplicate / glass emboss
+            //(Version 2)
+            t = Math.round(Math.max(imageData.data[i + 0], imageData.data[i + 1], imageData.data[i + 2]) / 10) * 16;
+            
+            imageDataPaint.data[i + 0] = imageData.data[(i + 0 + (t - 128) * coordMultiplier) % imageDataPaint.data.length];
+            imageDataPaint.data[i + 1] = imageData.data[(i + 1 + (t - 128) * coordMultiplier) % imageDataPaint.data.length];
+            imageDataPaint.data[i + 2] = imageData.data[(i + 2 + (t - 128) * coordMultiplier) % imageDataPaint.data.length];
+            */
+            //Scanline Datamosh
+            imageDataPaint.data[i + 0] = imageData.data[(i + 0 + t1 * 4) % imageData.data.length];
+            imageDataPaint.data[i + 1] = imageData.data[(i + 1 + t1 * 4) % imageData.data.length];
+            imageDataPaint.data[i + 2] = imageData.data[(i + 2 + t1 * 4) % imageData.data.length];
+        } else {
+            //Contrast Chaos + Noise
+            imageDataPaint.data[i + 0] = ((imageData.data[i + 0] % prevImageData.data[i + 0]) + 256) % 256;
+            imageDataPaint.data[i + 1] = ((imageData.data[i + 1] % prevImageData.data[i + 1]) + 256) % 256;
+            imageDataPaint.data[i + 2] = ((imageData.data[i + 2] % prevImageData.data[i + 2]) + 256) % 256;
+            
+            imageDataPaint.data[i + 0] = (imageDataPaint.data[i + 0] * .5 + prevImageDataPaint.data[i + 0] * 0.6) % 256;
+            imageDataPaint.data[i + 1] = (imageDataPaint.data[i + 1] * .5 + prevImageDataPaint.data[i + 1] * 0.6) % 256;
+            imageDataPaint.data[i + 2] = (imageDataPaint.data[i + 2] * .5 + prevImageDataPaint.data[i + 2] * 0.6) % 256;
+        }
     }
 
     ctx.fillStyle = 'black';
