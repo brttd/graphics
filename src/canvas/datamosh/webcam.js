@@ -195,6 +195,8 @@ video.addEventListener('canplay', function() {
         isRendering = true;
 
         video.requestVideoFrameCallback(render);
+
+        canvas.requestFullscreen();
     }
 });
 
@@ -215,6 +217,8 @@ function start() {
             isRendering = true;
 
             video.requestVideoFrameCallback(render);
+
+            canvas.requestFullscreen();
         }
     }).catch(function(err) {
         console.log('ERROR', err);
