@@ -2,6 +2,7 @@ const { series, parallel, src, dest, watch } = require("gulp");
 const uglify = require("gulp-uglify");
 const rename = require("gulp-rename");
 const fileinclude = require("gulp-file-include");
+const frontmatter = require("gulp-front-matter");
 const htmlmin = require("gulp-htmlmin");
 const webserver = require("gulp-webserver");
 
@@ -41,6 +42,12 @@ function removePathSource(path, file) {
 
 function canvas() {
     return src(globs.canvas)
+        .pipe(
+            frontmatter({
+                property: "meta",
+                remove: true,
+            })
+        )
         .pipe(
             fileinclude({
                 basepath: "includes/",

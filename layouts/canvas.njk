@@ -16,6 +16,10 @@ canvas {
 {% block body %}
 <canvas id="canvas"></canvas>
 
+{% for script in meta.scripts %}
+<script src="/js/{{ script }}"></script>
+{% endfor %}
+
 <script>
 {{ content | safe }}
 </script>

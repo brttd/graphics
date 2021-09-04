@@ -32,6 +32,7 @@ module.exports = function (options = {}) {
                 opts.template,
                 {
                     content: String(file.contents),
+                    meta: file.meta,
                 },
                 (err, res) => {
                     if (err) {
