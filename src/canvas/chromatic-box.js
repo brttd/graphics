@@ -139,10 +139,10 @@ function afterResize() {
 
 var boxes = [ ];
 
-var boxDensity = parseInt(queryParam('density', 40));
+var boxDensity = parseInt(queryParam('density', 80));
 
 if (!isFinite(boxDensity) || boxDensity < 0 || boxDensity > 100) {
-    boxDensity = 40;
+    boxDensity = 80;
 }
 
 var tailLength = parseFloat(queryParam('trail', 3));
