@@ -35,6 +35,18 @@ if (!Date.now) {
         };
 })();
 
+//From https://stackoverflow.com/a/901144
+function queryParam(name, fallback = null) {
+    name = name.replace(/[\[\]]/g, "\\$&");
+
+    var regex = new RegExp("[?&]" + name + "(=([^&#]*)|&|#|$)");
+    var results = regex.exec(window.location.href);
+
+    if (!results || !results[2]) return fallback;
+
+    return decodeURIComponent(results[2].replace(/\+/g, " "));
+}
+
 var ctx = canvas.getContext("2d");
 
 var width = window.innerWidth;
