@@ -192,6 +192,8 @@ var d = 0;
 var step = 0;
 var stepSize = 8;
 
+var maxSteps = stepSize * 20;
+
 var onethird = 1/3;
 var twothird = 2/3;
 
@@ -234,7 +236,7 @@ function render() {
 
     ctx.putImageData(imageDataPaint, 0, 0);
 
-    for (step = 0; step < d; step += stepSize) {
+    for (step = 0; step < d && step < maxSteps; step += stepSize) {
         Matter.Engine.update(engine, Math.min(stepSize, d - step));
 
         ctx.beginPath();
