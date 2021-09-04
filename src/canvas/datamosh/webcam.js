@@ -196,7 +196,9 @@ video.addEventListener('canplay', function() {
 
         video.requestVideoFrameCallback(render);
 
-        canvas.requestFullscreen();
+        if (window.self == window.top) {
+            canvas.requestFullscreen();
+        }
     }
 });
 
@@ -209,7 +211,6 @@ function start() {
         video.srcObject = stream;
 
         video.play();
-        
 
         afterResize();
 
@@ -218,7 +219,9 @@ function start() {
 
             video.requestVideoFrameCallback(render);
 
-            canvas.requestFullscreen();
+            if (window.self == window.top) {
+                canvas.requestFullscreen();
+            }
         }
     }).catch(function(err) {
         console.log('ERROR', err);
