@@ -96,15 +96,15 @@ function render() {
 
     frames.push(currentFrame);
 
-    if (frames.length > offset + interval * copies + 1) frames.shift();
+    if (frames.length > offset + interval * copies) frames.shift();
 
     for (let i = 0; i < imageDataPaint.data.length; i += 4) {
-        imageDataPaint.data[i + 0] = frames[0].data[i + 0];
-        imageDataPaint.data[i + 1] = frames[0].data[i + 1];
-        imageDataPaint.data[i + 2] = frames[0].data[i + 2];
+        imageDataPaint.data[i + 0] = currentFrame.data[i + 0];
+        imageDataPaint.data[i + 1] = currentFrame.data[i + 1];
+        imageDataPaint.data[i + 2] = currentFrame.data[i + 2];
 
 
-        for (let j = offset; j < frames.length; j += interval) {
+        for (let j = offset - 1; j < frames.length; j += interval) {
             let diff = Math.abs(frames[0].data[i + 0] - frames[j].data[i + 0]) +
                         Math.abs(frames[0].data[i + 1] - frames[j].data[i + 1]) +
                         Math.abs(frames[0].data[i + 2] - frames[j].data[i + 2]);
