@@ -187,13 +187,17 @@ referenceToggle.textContent = 'Freeze Background';
 referenceToggle.style.position = 'absolute';
 referenceToggle.style.bottom = '10px';
 referenceToggle.style.left = '50%';
-referenceToggle.style.transform = 'translate(-50%);';
+referenceToggle.style.transform = 'translate(-50%)';
 referenceToggle.style.padding = '8px 16px';
 
 referenceToggle.addEventListener('click', function() {
     useStaticReferenceFrame = !useStaticReferenceFrame;
 
     if (useStaticReferenceFrame) {
+        if (frames.length > 0) {
+            referenceFrame = frames[frames.length - 1];
+        }
+
         referenceToggle.textContent = 'Un-Freeze Background';
     } else {
         referenceToggle.textContent = 'Freeze Background';
