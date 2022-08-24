@@ -37,6 +37,11 @@ var frames = [
 
 ];
 
+
+var referenceFrame = false;
+//Should the reference frame stay the same? If false it will be set to the oldest frame in memory
+var useStaticReferenceFrame = false;
+
 var interval = 8;
 var copies = 4;
 var offset = interval * 3;
@@ -79,8 +84,6 @@ function afterResize() {
     imageDataPaint = ctx.createImageData(width, height);
 }
 
-
-
 function render() {
     //painterCtx.fillStyle = 'black';
     //painterCtx.fillRect(0, 0, width, height);
@@ -96,23 +99,29 @@ function render() {
 
     frames.push(currentFrame);
 
+    if (!useStaticReferenceFrame) referenceFrame = frames[0];
+
     if (frames.length > offset + interval * copies) frames.shift();
 
     for (let i = 0; i < imageDataPaint.data.length; i += 4) {
-        imageDataPaint.data[i + 0] = currentFrame.data[i + 0];
-        imageDataPaint.data[i + 1] = currentFrame.data[i + 1];
-        imageDataPaint.data[i + 2] = currentFrame.data[i + 2];
-
+        imageDataPaint.data[i + 0] = referenceFrame.data[i + 0];
+        imageDataPaint.data[i + 1] = referenceFrame.data[i + 1];
+        imageDataPaint.data[i + 2] = referenceFrame.data[i + 2];
 
         for (let j = offset - 1; j < frames.length; j += interval) {
-            let diff = Math.abs(frames[0].data[i + 0] - frames[j].data[i + 0]) +
-                        Math.abs(frames[0].data[i + 1] - frames[j].data[i + 1]) +
-                        Math.abs(frames[0].data[i + 2] - frames[j].data[i + 2]);
+            let diff = Math.abs(referenceFrame.data[i + 0] - frames[j].data[i + 0]) +
+                        Math.abs(referenceFrame.data[i + 1] - frames[j].data[i + 1]) +
+                        Math.abs(referenceFrame.data[i + 2] - frames[j].data[i + 2]);
 
-            if (diff > 64) {
+
+            if (diff > 32 * (((j - offset + 1) / (interval * copies)) * 0.5 + 1)) {
                 imageDataPaint.data[i + 0] = frames[j].data[i + 0];
                 imageDataPaint.data[i + 1] = frames[j].data[i + 1];
                 imageDataPaint.data[i + 2] = frames[j].data[i + 2];
+            } else if (j === offset - 1) {
+                referenceFrame.data[i + 0] = referenceFrame.data[i + 0] * 0.9 + frames[j].data[i + 0] * 0.1;
+                referenceFrame.data[i + 1] = referenceFrame.data[i + 1] * 0.9 + frames[j].data[i + 1] * 0.1;
+                referenceFrame.data[i + 2] = referenceFrame.data[i + 2] * 0.9 + frames[j].data[i + 2] * 0.1;
             }
         }
 
@@ -142,7 +151,7 @@ video.addEventListener('canplay', function() {
         video.requestVideoFrameCallback(render);
 
         if (window.self == window.top) {
-            canvas.requestFullscreen();
+            document.body.requestFullscreen();
         }
     }
 });
@@ -165,9 +174,30 @@ navigator.mediaDevices.getUserMedia({
         video.requestVideoFrameCallback(render);
 
         if (window.self == window.top) {
-            canvas.requestFullscreen();
+            document.body.requestFullscreen();
         }
     }
 }).catch(function(err) {
     console.log('ERROR', err);
 })
+
+var referenceToggle = document.createElement('button');
+referenceToggle.textContent = 'Freeze Background';
+
+referenceToggle.style.position = 'absolute';
+referenceToggle.style.bottom = '10px';
+referenceToggle.style.left = '50%';
+referenceToggle.style.transform = 'translate(-50%);';
+referenceToggle.style.padding = '8px 16px';
+
+referenceToggle.addEventListener('click', function() {
+    useStaticReferenceFrame = !useStaticReferenceFrame;
+
+    if (useStaticReferenceFrame) {
+        referenceToggle.textContent = 'Un-Freeze Background';
+    } else {
+        referenceToggle.textContent = 'Freeze Background';
+    }
+})
+
+document.body.appendChild(referenceToggle);
