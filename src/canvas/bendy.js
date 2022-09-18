@@ -20,21 +20,24 @@ let lrSpeed = 90 * (Math.PI / 180)
 let lBackground = '#fff';
 let lColor = '#ff0000';
 
-let safety = 1;
-
+let safety = 0.2;
 
 let lines = [
 
 ];
 
+//TODO:
+//Implement canvas padding, so view is essentially "zoomed in"
 
+//TODO: Start on edges, moving directly inwards
 for (let i = 0; i < 10; i++) {
     lines.push([
         0,
         Math.random() * twopi,
         Math.random() * width,
         Math.random() * height,
-        Math.random() * -2
+        0,
+        Math.random() * 3
     ])
 }
 
@@ -49,6 +52,8 @@ function render() {
     t += d;
 
     for (let i = 0; i < lines.length; i++) {
+        let lSafety = Math.min(lines[i][4], safety);
+
         if (lines[i][0] === 0) {
             //Moving straight
             /*
@@ -63,8 +68,8 @@ function render() {
                 ctx.beginPath();
 
                 ctx.moveTo(
-                    lines[i][2] + y * (j + 0.25) * lWidth * 2 - x * lpSpeed * d * safety,
-                    lines[i][3] - x * (j + 0.25) * lWidth * 2 - y * lpSpeed * d * safety
+                    lines[i][2] + y * (j + 0.25) * lWidth * 2 - x * lpSpeed * lSafety,
+                    lines[i][3] - x * (j + 0.25) * lWidth * 2 - y * lpSpeed * lSafety
                 );
                 ctx.lineTo(
                     lines[i][2] + y * (j + 0.25) * lWidth * 2 + x * lpSpeed * d,
@@ -78,8 +83,8 @@ function render() {
                     ctx.beginPath();
 
                     ctx.moveTo(
-                        lines[i][2] + y * (j + 0.75) * lWidth * 2 - x * lpSpeed * d * safety,
-                        lines[i][3] - x * (j + 0.75) * lWidth * 2 - y * lpSpeed * d * safety
+                        lines[i][2] + y * (j + 0.75) * lWidth * 2 - x * lpSpeed * lSafety,
+                        lines[i][3] - x * (j + 0.75) * lWidth * 2 - y * lpSpeed * lSafety
                     );
                     ctx.lineTo(
                         lines[i][2] + y * (j + 0.75) * lWidth * 2 + x * lpSpeed * d,
@@ -100,6 +105,8 @@ function render() {
             //Rotating around point
             ctx.lineWidth = lWidth;
 
+            //TODO: Implement counter-clockwise rotations
+
             for (let j = 0; j < lCount; j++) {
                 ctx.beginPath();
 
@@ -108,7 +115,7 @@ function render() {
                     lines[i][3],
 
                     (j + 0.25) * lWidth * 2,
-                    pi - lines[i][1] + lrSpeed * d * lines[i][0] * safety,
+                    pi - lines[i][1] + lrSpeed * lines[i][0] * lSafety,
                     pi - lines[i][1] - lrSpeed * d * lines[i][0],
                     lines[i][0] === 1
                 );
@@ -124,7 +131,7 @@ function render() {
                         lines[i][3],
 
                         (j + 0.75) * lWidth * 2,
-                        pi - lines[i][1] + lrSpeed * d * lines[i][0] * safety,
+                        pi - lines[i][1] + lrSpeed * lines[i][0] * lSafety,
                         pi - lines[i][1] - lrSpeed * d * lines[i][0],
                         lines[i][0] === 1
                     );
@@ -140,13 +147,15 @@ function render() {
 
         lines[i][4] += d;
 
-        if (lines[i][4] > 2 && Math.random() > 0.95) {
-            lines[i][4] = Math.random() * -2;
+        if (lines[i][4] > lines[i][5]) {
+            lines[i][4] = 0;
 
             if (lines[i][0] === 0) {
                 lines[i][0] = 1;
+                lines[i][5] = Math.random() * 2;
             } else {
                 lines[i][0] = 0;
+                lines[i][5] = Math.random() * 4;
             }
         }
     }
