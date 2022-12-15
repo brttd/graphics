@@ -174,6 +174,7 @@ navigator.mediaDevices.getUserMedia({
     console.log('ERROR', err);
 })
 
+/*
 var referenceToggle = document.createElement('button');
 referenceToggle.textContent = 'Freeze Background';
 
@@ -198,3 +199,4 @@ referenceToggle.addEventListener('click', function() {
 })
 
 document.body.appendChild(referenceToggle);
+*/
