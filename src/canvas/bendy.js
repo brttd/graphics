@@ -49,7 +49,7 @@ for (let i = 0; i < 10; i++) {
 let t = Date.now() * 0.001;
 
 function render() {
-    d = Date.now() * 0.001 - t;
+    let d = Date.now() * 0.001 - t;
     t += d;
 
     d *= speed;
