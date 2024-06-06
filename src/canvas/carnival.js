@@ -214,47 +214,91 @@ var fbiConfig = [
 		max: gl.NEAREST,
 	},
 ];
+
 var fbiA = twgl.createFramebufferInfo(gl, fbiConfig);
 var fbiB = twgl.createFramebufferInfo(gl, fbiConfig);
+
+var attachA = fbiA.attachments[0];
+var attachB = fbiB.attachments[0];
+
+var res = [width, height];
+
+var uniformA = {
+	time: 0,
+	delta: 0,
+	frame: attachB,
+	resolution: res,
+};
+
+var uniformB = {
+	time: 0,
+	delta: 0,
+	frame: attachA,
+	resolution: res,
+};
+
+var uniformCopyA = {
+	frame: attachA,
+	resolution: res,
+};
+
+var uniformCopyB = {
+	frame: attachB,
+	resolution: res,
+};
 
 var time = 0;
 var lastTime = 0;
 var delta = 0;
 
-function render(t) {
+function renderAlternate(t) {
 	time = t * 0.001;
 	delta = time - lastTime;
 	lastTime = time;
 
 	requestAnimationFrame(render);
 
-	twgl.bindFramebufferInfo(gl, fbiB);
+	uniformA.time = time;
+	uniformA.delta = delta;
+
+	twgl.bindFramebufferInfo(gl, fbiA);
 
 	gl.useProgram(programInfo.program);
 	twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
-	twgl.setUniforms(programInfo, {
-		time: time,
-		delta: delta,
-		frame: fbiA.attachments[0],
-		resolution: [width, height],
-	});
+	twgl.setUniforms(programInfo, uniformA);
 	twgl.drawBufferInfo(gl, bufferInfo);
 
-	// now copy fbiB to the canvas so we can see the result
 	twgl.bindFramebufferInfo(gl, null);
 
 	gl.useProgram(programInfoCopy.program);
 	twgl.setBuffersAndAttributes(gl, programInfoCopy, bufferInfo);
-	twgl.setUniforms(programInfoCopy, {
-		frame: fbiB.attachments[0],
-		resolution: [width, height],
-	});
+	twgl.setUniforms(programInfoCopy, uniformCopyA);
+	twgl.drawBufferInfo(gl, bufferInfo);
+}
+
+function render(t) {
+	time = t * 0.001;
+	delta = time - lastTime;
+	lastTime = time;
+
+	requestAnimationFrame(renderAlternate);
+
+	uniformB.time = time;
+	uniformB.delta = delta;
+
+	twgl.bindFramebufferInfo(gl, fbiB);
+
+	gl.useProgram(programInfo.program);
+	twgl.setBuffersAndAttributes(gl, programInfo, bufferInfo);
+	twgl.setUniforms(programInfo, uniformB);
 	twgl.drawBufferInfo(gl, bufferInfo);
 
-	// swap the variables so we render to the opposite textures next time
-	var temp = fbiA;
-	fbiA = fbiB;
-	fbiB = temp;
+	twgl.bindFramebufferInfo(gl, null);
+
+	gl.useProgram(programInfoCopy.program);
+	twgl.setBuffersAndAttributes(gl, programInfoCopy, bufferInfo);
+	twgl.setUniforms(programInfoCopy, uniformCopyB);
+	twgl.drawBufferInfo(gl, bufferInfo);
 }
 
 requestAnimationFrame(render);
@@ -269,6 +313,9 @@ function onResize() {
 	twgl.resizeFramebufferInfo(gl, fbiB, fbiConfig);
 
 	gl.viewport(0, 0, width, height);
+
+	res[0] = width;
+	res[1] = height;
 }
 
 onResize();
