@@ -130,7 +130,7 @@ uniform vec2 resolution;
 
 uniform sampler2D frame;
 
-const float fillPercentage = 0.65 * 0.5;
+const float fillPercentage = 0.63 * 0.5;
 
 const float noiseScale = 0.1;
 
