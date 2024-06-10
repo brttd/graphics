@@ -56,16 +56,20 @@ function queryParam(name, fallback = null) {
 var width = window.innerWidth;
 var height = window.innerHeight;
 
-var gl = canvas.getContext("webgl");
+var gl = canvas.getContext("webgl2");
 
 var vert = `
-attribute vec4 position;
+#version 300 es
+
+in vec4 position;
 
 void main() {
   gl_Position = position;
 }`;
 
 var fragVertical = `
+#version 300 es
+
 precision mediump float;
 
 uniform vec2 resolution;
@@ -74,11 +78,13 @@ uniform sampler2D frame;
 
 const float decrease = 1.0 / 255.0;
 
-void main() {
-    vec4 current = texture2D(frame, gl_FragCoord.xy / resolution);
+out vec4 FragColor;
 
-    vec4 below = texture2D(frame, mod((gl_FragCoord.xy - vec2(0.0, 1.0)) / resolution, 1.0));
-    vec4 above = texture2D(frame, mod((gl_FragCoord.xy + vec2(0.0, 1.0)) / resolution, 1.0));
+void main() {
+    vec4 current = texture(frame, gl_FragCoord.xy / resolution);
+
+    vec4 below = texture(frame, mod((gl_FragCoord.xy - vec2(0.0, 1.0)) / resolution, 1.0));
+    vec4 above = texture(frame, mod((gl_FragCoord.xy + vec2(0.0, 1.0)) / resolution, 1.0));
 
     if (above.r == 1.0 && current.r != 1.0 && current.g != 1.0) {
         current.r = 1.0;
@@ -90,11 +96,13 @@ void main() {
         current.b += decrease;
     }
 
-	gl_FragColor = current;
+	FragColor = current;
 }
 `;
 
 var fragHorizontal = `
+#version 300 es
+
 precision mediump float;
 
 uniform vec2 resolution;
@@ -103,11 +111,13 @@ uniform sampler2D frame;
 
 const float decrease = 1.0 / 255.0;
 
-void main() {
-    vec4 current = texture2D(frame, gl_FragCoord.xy / resolution);
+out vec4 FragColor;
 
-    vec4 left = texture2D(frame, mod((gl_FragCoord.xy - vec2(1.0, 0.0)) / resolution, 1.0));
-    vec4 right = texture2D(frame, mod((gl_FragCoord.xy + vec2(1.0, 0.0)) / resolution, 1.0));
+void main() {
+    vec4 current = texture(frame, gl_FragCoord.xy / resolution);
+
+    vec4 left = texture(frame, mod((gl_FragCoord.xy - vec2(1.0, 0.0)) / resolution, 1.0));
+    vec4 right = texture(frame, mod((gl_FragCoord.xy + vec2(1.0, 0.0)) / resolution, 1.0));
 
     if (left.g == 1.0 && current.r != 1.0 && current.g != 1.0) {
         current.g = 1.0;
@@ -119,21 +129,28 @@ void main() {
         current.b += decrease;
     }
 
-	gl_FragColor = current;
+	FragColor = current;
 }
 `;
 
 var fragGen = `
+#version 300 es
+
 precision mediump float;
 
 uniform vec2 resolution;
 
 uniform sampler2D frame;
 
-const float fillPercentage = 0.63 * 0.5;
+const float fillPercentage = 0.1525;
 
-const float noiseScale = 0.1;
+const vec2 noiseScale = vec2(
+    0.123456789,
+    0.987654321
+);
 
+/*
+3D noise
 const vec3 h1 = vec3(127.1,311.7, 74.7);
 const vec3 h2 = vec3(269.5,183.3,246.1);
 const vec3 h3 = vec3(113.5,271.9,124.6);
@@ -163,28 +180,73 @@ float noise(in vec3 p) {
                      mix( dot( hash( i + vec3(0.0,1.0,1.0) ), f - vec3(0.0,1.0,1.0) ),
                           dot( hash( i + vec3(1.0,1.0,1.0) ), f - vec3(1.0,1.0,1.0) ), u.x), u.y), u.z );
 }
+*/
+
+// 0: cubic
+// 1: quintic
+#define INTERPOLANT 0
+
+float hash( in ivec2 p ) {
+    // 2D -> 1D
+    int n = p.x*3 + p.y*113;
+
+    // 1D hash by Hugo Elias
+	n = (n << 13) ^ n;
+    n = n * (n * n * 15731 + 789221) + 1376312589;
+    return -1.0+2.0*float( n & 0x0fffffff)/float(0x0fffffff);
+}
+
+float noise( in vec2 p ) {
+    ivec2 i = ivec2(floor( p ));
+    vec2 f = fract( p );
+
+    #if INTERPOLANT==1
+    // quintic interpolant
+    vec2 u = f*f*f*(f*(f*6.0-15.0)+10.0);
+    #else
+    // cubic interpolant
+    vec2 u = f*f*(3.0-2.0*f);
+    #endif
+
+    return mix( mix( hash( i + ivec2(0,0) ),
+                     hash( i + ivec2(1,0) ), u.x),
+                mix( hash( i + ivec2(0,1) ),
+                     hash( i + ivec2(1,1) ), u.x), u.y);
+}
+
+float random (vec2 st) {
+    return fract(sin(dot(st.xy,
+                         vec2(12.9898,78.233)))*
+        43758.5453123);
+}
+
+out vec4 FragColor;
 
 void main() {
-    float n = noise(vec3(gl_FragCoord.x * noiseScale, gl_FragCoord.y * noiseScale, 0.0)) + 0.5;
+    float n = random(gl_FragCoord.xy * noiseScale);
 
     if (n <= fillPercentage) {
-        gl_FragColor = vec4(1.0, 0.0, 0.0, 1.0);
+        FragColor = vec4(1.0, 0.0, 0.0, 1.0);
     } else if (n >= 1.0 - fillPercentage) {
-        gl_FragColor = vec4(0.0, 1.0, 0.0, 1.0);
+        FragColor = vec4(0.0, 1.0, 0.0, 1.0);
     } else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        FragColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 }`;
 
 var fragCopy = `
+#version 300 es
+
 precision mediump float;
 
 uniform vec2 resolution;
 
 uniform sampler2D frame;
 
+out vec4 FragColor;
+
 void main() {
-  gl_FragColor = texture2D(frame, gl_FragCoord.xy / resolution);
+  FragColor = texture(frame, gl_FragCoord.xy / resolution);
 }
 `;
 
